@@ -11,45 +11,51 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# FIXED CSS: Forces text inputs and default buttons to stay Blue/Grey and kills the default red outline accent
+# FIXED CSS BLOCK: Forces custom styles regardless of Streamlit's defaults
 st.markdown("""
     <style>
     .stApp { background-color: #121212; color: #FFFFFF; }
     div[data-testid="stSidebar"] { background-color: #1E1E1E; }
     h1, h2, h3 { color: #2196F3 !important; font-family: 'Arial', sans-serif; }
     
-    /* Force Text Boxes to have a clean grey look instead of red */
+    /* Clean look for text input box in the sidebar */
     input {
         background-color: #1E1E1E !important;
         color: #FFFFFF !important;
         border: 1px solid #2196F3 !important;
     }
     
-    /* Standardized player card buttons */
-    .stButton>button {
+    /* Target ALL buttons inside the main layout grid */
+    div[data-testid="stHorizontalBlock"] button {
         width: 100%;
         padding: 20px !important;
         font-size: 18px !important;
         font-weight: bold !important;
         border-radius: 8px !important;
+        transition: all 0.3s ease;
     }
     
-    /* Pending/Unchecked player styling (Clean dark grey card, no red highlights) */
-    div[data-testid="stBaseButton-primary"] {
+    /* Target UNCHECKED player buttons explicitly (Force Dark Grey / Blue Border) */
+    div[data-testid="stHorizontalBlock"] button[p-type="secondary"],
+    div[data-testid="stHorizontalBlock"] button:not([disabled]) {
         background-color: #1E1E1E !important;
         color: #B0BEC5 !important;
         border: 1px solid #424242 !important;
     }
-    div[data-testid="stBaseButton-primary"]:hover {
+    
+    /* Hover effect for unchecked buttons */
+    div[data-testid="stHorizontalBlock"] button:hover {
         border-color: #2196F3 !important;
         color: #2196F3 !important;
+        background-color: #252525 !important;
     }
 
-    /* Checked-in player styling (Bright Blue) */
-    div[data-testid="stBaseButton-secondary"] {
+    /* Target CHECKED-IN player buttons explicitly using the custom green emoji marker */
+    div[data-testid="stHorizontalBlock"] button:has(span:contains("🍏")),
+    div[data-testid="stHorizontalBlock"] button:contains("🍏") {
         background-color: #2196F3 !important;
         color: #FFFFFF !important;
-        border: none !important;
+        border: 1px solid #2196F3 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -109,7 +115,7 @@ with st.sidebar:
     # Delete Player Section
     st.write("🗑️ **Manage Roster**")
     player_to_del = st.selectbox("Select player to remove:", [""] + st.session_state.players)
-    if st.button("Delete Selected Player", type="primary", use_container_width=True):
+    if st.button("Delete Selected Player", use_container_width=True):
         if player_to_del:
             st.session_state.players.remove(player_to_del)
             if player_to_del in st.session_state.attendance:
@@ -129,13 +135,13 @@ for index, player in enumerate(st.session_state.players):
     with col:
         if player in st.session_state.attendance:
             time_str = st.session_state.attendance[player]
-            # Checked in button styling
-            if st.button(f"🍏 {player}\n({time_str})", key=f"btn_{player}", type="secondary", use_container_width=True):
+            # Checked in button styling (Notice type="secondary" to completely avoid the default primary red)
+            if st.button(f"🍏 {player} ({time_str})", key=f"btn_{player}", type="secondary", use_container_width=True):
                 del st.session_state.attendance[player]
                 st.rerun()
         else:
-            # Reconfigured type assignment to sync cleanly with custom dark CSS styles override
-            if st.button(player, key=f"btn_{player}", type="primary", use_container_width=True):
+            # FIXED: Removed type="primary" so Streamlit never throws its red/coral look here again
+            if st.button(player, key=f"btn_{player}", type="secondary", use_container_width=True):
                 now_time = datetime.now().strftime("%I:%M %p")
                 st.session_state.attendance[player] = now_time
                 st.rerun()
