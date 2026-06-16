@@ -6,38 +6,37 @@ import pandas as pd
 # --- Configuration & Theme Setup ---
 st.set_page_config(
     page_title="Hialeah Hurricanes 10u Check-In",
-    page_icon="⚡",
+    page_icon="🏈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# FIXED CSS BLOCK: Forces custom styles regardless of Streamlit's defaults
+# FIXED CSS BLOCK: Explicitly manages the clean dark backgrounds and custom button states
 st.markdown("""
     <style>
     .stApp { background-color: #121212; color: #FFFFFF; }
     div[data-testid="stSidebar"] { background-color: #1E1E1E; }
     h1, h2, h3 { color: #2196F3 !important; font-family: 'Arial', sans-serif; }
     
-    /* Clean look for text input box in the sidebar */
+    /* Input box style adjustments */
     input {
         background-color: #1E1E1E !important;
         color: #FFFFFF !important;
         border: 1px solid #2196F3 !important;
     }
     
-    /* Target ALL buttons inside the main layout grid */
+    /* Target all buttons inside the main player grid area */
     div[data-testid="stHorizontalBlock"] button {
         width: 100%;
         padding: 20px !important;
         font-size: 18px !important;
         font-weight: bold !important;
         border-radius: 8px !important;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
     
-    /* Target UNCHECKED player buttons explicitly (Force Dark Grey / Blue Border) */
-    div[data-testid="stHorizontalBlock"] button[p-type="secondary"],
-    div[data-testid="stHorizontalBlock"] button:not([disabled]) {
+    /* UNCHECKED state styling (Clean Dark Slate Card with Grey Text) */
+    div[data-testid="stHorizontalBlock"] button {
         background-color: #1E1E1E !important;
         color: #B0BEC5 !important;
         border: 1px solid #424242 !important;
@@ -50,9 +49,9 @@ st.markdown("""
         background-color: #252525 !important;
     }
 
-    /* Target CHECKED-IN player buttons explicitly using the custom green emoji marker */
-    div[data-testid="stHorizontalBlock"] button:has(span:contains("🍏")),
-    div[data-testid="stHorizontalBlock"] button:contains("🍏") {
+    /* PRESENT state styling (Forces target button background to turn solid Hurricanes Blue) */
+    div[data-testid="stHorizontalBlock"] button:has(span:contains("🏈")),
+    div[data-testid="stHorizontalBlock"] button:contains("🏈") {
         background-color: #2196F3 !important;
         color: #FFFFFF !important;
         border: 1px solid #2196F3 !important;
@@ -90,7 +89,7 @@ if "attendance" not in st.session_state:
     st.session_state.attendance = {}
 
 # --- App Header ---
-st.title("⚡ Hialeah Hurricanes 10u Team Check-In ⚡")
+st.title("🏈 Hialeah Hurricanes 10u Team Check-In 🏈")
 st.subheader(datetime.now().strftime("%A, %B %d, %Y"))
 st.write("---")
 
@@ -135,12 +134,12 @@ for index, player in enumerate(st.session_state.players):
     with col:
         if player in st.session_state.attendance:
             time_str = st.session_state.attendance[player]
-            # Checked in button styling (Notice type="secondary" to completely avoid the default primary red)
-            if st.button(f"🍏 {player} ({time_str})", key=f"btn_{player}", type="secondary", use_container_width=True):
+            # Checked in button styling: Prepends a football emoji and appends the check-in time
+            if st.button(f"🏈 {player} ({time_str})", key=f"btn_{player}", type="secondary", use_container_width=True):
                 del st.session_state.attendance[player]
                 st.rerun()
         else:
-            # FIXED: Removed type="primary" so Streamlit never throws its red/coral look here again
+            # Unchecked button styling: Displays the clean player name
             if st.button(player, key=f"btn_{player}", type="secondary", use_container_width=True):
                 now_time = datetime.now().strftime("%I:%M %p")
                 st.session_state.attendance[player] = now_time
