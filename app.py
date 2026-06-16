@@ -11,19 +11,44 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS to force a clean, modern dark theme matching your style
+# FIXED CSS: Forces text inputs and default buttons to stay Blue/Grey and kills the default red outline accent
 st.markdown("""
     <style>
     .stApp { background-color: #121212; color: #FFFFFF; }
     div[data-testid="stSidebar"] { background-color: #1E1E1E; }
     h1, h2, h3 { color: #2196F3 !important; font-family: 'Arial', sans-serif; }
-    /* Style for the tap cards */
+    
+    /* Force Text Boxes to have a clean grey look instead of red */
+    input {
+        background-color: #1E1E1E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #2196F3 !important;
+    }
+    
+    /* Standardized player card buttons */
     .stButton>button {
         width: 100%;
         padding: 20px !important;
         font-size: 18px !important;
         font-weight: bold !important;
         border-radius: 8px !important;
+    }
+    
+    /* Pending/Unchecked player styling (Clean dark grey card, no red highlights) */
+    div[data-testid="stBaseButton-primary"] {
+        background-color: #1E1E1E !important;
+        color: #B0BEC5 !important;
+        border: 1px solid #424242 !important;
+    }
+    div[data-testid="stBaseButton-primary"]:hover {
+        border-color: #2196F3 !important;
+        color: #2196F3 !important;
+    }
+
+    /* Checked-in player styling (Bright Blue) */
+    div[data-testid="stBaseButton-secondary"] {
+        background-color: #2196F3 !important;
+        color: #FFFFFF !important;
         border: none !important;
     }
     </style>
@@ -51,7 +76,7 @@ def save_roster(players_list):
         for player in players_list:
             f.write(f"{player}\n")
 
-# Initialize Session States (Keeps track of data while clicking around the app)
+# Initialize Session States
 if "players" not in st.session_state:
     st.session_state.players = load_roster()
 
@@ -96,22 +121,20 @@ with st.sidebar:
 # --- 2. MAIN ATTENDANCE CARD GRID ---
 st.write("### Tap Your Name Card To Check In")
 
-# Calculate a clean responsive 3-column grid layout
+# Responsive 3-column grid layout
 cols = st.columns(3)
 for index, player in enumerate(st.session_state.players):
     col = cols[index % 3]
     
     with col:
-        # Check if player is checked in to determine layout look
         if player in st.session_state.attendance:
             time_str = st.session_state.attendance[player]
-            # Checked in players get a solid blue button style
+            # Checked in button styling
             if st.button(f"🍏 {player}\n({time_str})", key=f"btn_{player}", type="secondary", use_container_width=True):
-                # Clicking again clears check-in
                 del st.session_state.attendance[player]
                 st.rerun()
         else:
-            # Unchecked players get a neutral grey/dark look showing just the clean name
+            # Reconfigured type assignment to sync cleanly with custom dark CSS styles override
             if st.button(player, key=f"btn_{player}", type="primary", use_container_width=True):
                 now_time = datetime.now().strftime("%I:%M %p")
                 st.session_state.attendance[player] = now_time
@@ -124,7 +147,6 @@ if st.button("✅ COMPLETED: Download Attendance List", use_container_width=True
     if not st.session_state.attendance:
         st.error("No data logged yet. Please tap names to check in.")
     else:
-        # Turn data dictionary into a neat downloadable table
         report_data = []
         for player in st.session_state.players:
             status = "Present" if player in st.session_state.attendance else "Absent"
