@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+from zoneinfo import ZoneInfo  # FIXED: Handles clean Eastern Time tracking
 import os
 import pandas as pd
 
@@ -65,6 +66,9 @@ DEFAULT_PLAYERS = [
     "Sam Wilson", "Chris Evans", "Tom Brady", "Patrick Mahomes"
 ]
 
+# Define Eastern Time Zone explicitly
+EASTERN_TZ = ZoneInfo("America/New_York")
+
 # --- Core Persistent Logic ---
 def load_roster():
     if not os.path.exists(ROSTER_FILE):
@@ -90,7 +94,8 @@ if "attendance" not in st.session_state:
 
 # --- App Header ---
 st.title("🏈 Hialeah Hurricanes 10u Team Check-In 🏈")
-st.subheader(datetime.now().strftime("%A, %B %d, %Y"))
+# FIXED: Forces the title header clock to display localized Eastern Time
+st.subheader(datetime.now(EASTERN_TZ).strftime("%A, %B %d, %Y"))
 st.write("---")
 
 # --- 1. ADMIN SIDEBAR ---
@@ -134,14 +139,15 @@ for index, player in enumerate(st.session_state.players):
     with col:
         if player in st.session_state.attendance:
             time_str = st.session_state.attendance[player]
-            # Checked in button styling: Prepends a football emoji and appends the check-in time
+            # Checked in button styling: Prepends a football emoji and appends the Eastern check-in time
             if st.button(f"🏈 {player} ({time_str})", key=f"btn_{player}", type="secondary", use_container_width=True):
                 del st.session_state.attendance[player]
                 st.rerun()
         else:
             # Unchecked button styling: Displays the clean player name
             if st.button(player, key=f"btn_{player}", type="secondary", use_container_width=True):
-                now_time = datetime.now().strftime("%I:%M %p")
+                # FIXED: Forces timestamp snapshots to capture localized Eastern Time instead of UTC server time
+                now_time = datetime.now(EASTERN_TZ).strftime("%I:%M %p")
                 st.session_state.attendance[player] = now_time
                 st.rerun()
 
@@ -161,7 +167,7 @@ if st.button("✅ COMPLETED: Download Attendance List", use_container_width=True
         df = pd.DataFrame(report_data, columns=["Player Name", "Status", "Check-in Time"])
         csv_data = df.to_csv(index=False).encode('utf-8')
         
-        today_str = datetime.now().strftime("%Y-%m-%d")
+        today_str = datetime.now(EASTERN_TZ).strftime("%Y-%m-%d")
         st.download_button(
             label="💾 Download CSV File to iPad Storage",
             data=csv_data,
