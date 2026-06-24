@@ -62,7 +62,7 @@ st.markdown("""
 
 ROSTER_FILE = "roster.txt"
 DEFAULT_PLAYERS = [
-    "Nicholas Gonzalez", "Jax Fonseca", "Adrian Bofill", "Mario Blanco", 
+    "Nicholas Gonzalez", "Jax Fonseca", "Adrian Bofill", "Mario Blanco", "Asher Jones", "Alyias Salmero", "Jacob Cosme", "Jeremiah Sanders", "Jorge Artega", "Julian Orchilles", "Lucas Cohen Ramonet", "Lyon Acy", "Mellow", "Nivaldo Echevarria", "Prince Acay",  
     "Aceon Kennedy", "Angel Bazil", "John Wooden", "Joel Fonseca Jr","Liam Torres", "Matthew Castro", "Esteven Garabato", "Axel Noya", "Caden Massie", "Kannan Alexis", "Lucas Vazquez", "Jamare Washington", "Ayden Serrano", "Julian Hernandez", "Julius Paula", "Jaiden Murphy", "Zion Walker", "AJ Anderson", "Darian Johnson", "Jacob Tellez", "Nolan Sanchez", "Devin Soto" 
 ]
 
